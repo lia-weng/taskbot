@@ -19,7 +19,9 @@ def main():
         # "Which tasks have I not started yet?",
         # "What do I have left in July?",
         # "What's my task for this week"
-        # "What's my tasks between 7/15 to end of the month?"
+        # "What's my tasks between 7/15 to end of the month?",
+        # "Add go to work social for tomorrow."
+        "delete work social for tomorrow"
     ]
 
     for question in questions:

@@ -14,10 +14,10 @@ cursor = conn.cursor()
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS tasks (
-    task_id INTEGER PRIMARY KEY,
-    task_name TEXT NOT NULL,
+    task_id TEXT PRIMARY KEY,
+    task_name VARCHAR(255) NOT NULL,
     due_date TIMESTAMP,
-    status TEXT
+    status VARCHAR(20)
 )
 """)
 

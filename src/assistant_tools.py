@@ -1,7 +1,9 @@
 import sqlite3
 import os
+import uuid
 
 from langchain_core.tools import tool
+from langchain_core.pydantic_v1 import BaseModel, Field
 from typing import Optional
 
 from datetime import datetime, date
@@ -18,8 +20,8 @@ def search_tasks(
     end_date_range: Optional[datetime] = None,
     status: Optional[str] = None,
     limit: int = 10,
-) -> list[dict]:
-    """Search for tasks based on given crSiteria."""
+) -> str:
+    """Search for tasks based on given criteria."""
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
@@ -55,4 +57,84 @@ def search_tasks(
 
     return results
 
-tools = [search_tasks]
+@tool
+def add_tasks(
+    task_name: str,
+    due_date: datetime,
+    status: Optional[str] = None,
+) -> None:
+    "Add a task. If user didn't mention a specific time, default to 12:00 am of that day."
+
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    task_id = str(uuid.uuid4())
+    if not status:
+        status = "not started"
+
+    query = """
+    INSERT INTO tasks (task_id, task_name, due_date, status)
+    VALUES (?, ?, ?, ?)
+    """
+    params = [
+        task_id,
+        task_name,
+        due_date.strftime('%Y-%m-%d %H:%M:%S'),
+        status
+    ]
+    
+    cursor.execute(query, params)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return "Task added successuflly."
+
+# @tool
+# def identify_task_to_delete(
+#         query: str
+#     ) -> str:
+#     """Find the """
+
+class ToDeleteTasks(BaseModel):
+    """Transfers work to a specialized assistant to delete tasks."""
+
+    request: str = Field(
+        description="Any information provided by the user."
+    )
+
+@tool
+def delete_tasks(
+    task_id: str
+) -> str:
+    """Delete a task given the task_id"""
+
+    # conn = sqlite3.connect(db_path)
+    # cursor = conn.cursor()
+
+    
+    # cursor.execute(query, params)
+    # conn.commit()
+    # cursor.close()
+    # conn.close()
+    "delete"
+
+    return "Task deleted successuflly."
+
+@tool
+def get_all_tasks() -> str:
+    """Retrive all tasks from the database"""
+
+    # conn = sqlite3.connect(db_path)
+    # cursor = conn.cursor()
+
+    
+    # cursor.execute(query, params)
+    # conn.commit()
+    # cursor.close()
+    # conn.close()
+
+    return "got all tasks."
+
+main_tools = [search_tasks, add_tasks]
+delete_tasks_tools = [delete_tasks, get_all_tasks]
