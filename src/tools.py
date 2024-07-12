@@ -10,7 +10,6 @@ from datetime import datetime, date
 import calendar
 import dateparser
 
-# Get the path to the database file relative to the current script
 db_path = os.path.join(os.path.dirname(__file__), "..", "data", "tasks.db")      
 
 class ToMainAssistant(BaseModel):
@@ -140,5 +139,5 @@ def get_all_tasks() -> str:
 
     return results
 
-main_tools = [search_tasks, add_tasks, delete_tasks]
+main_tools = [search_tasks, add_tasks]
 delete_tasks_tools = [get_all_tasks, delete_tasks]
