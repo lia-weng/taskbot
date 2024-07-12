@@ -15,13 +15,16 @@ def main():
     }
 
     questions = [
-        # "Who evented oreos?"
+        # "add task do laundry for Saturday",
+        # "add meet with friends for July 15 at 8pm",
+        # "add call bank for july 20",
+        # "finish essay for next wednesday"
         # "Which tasks have I not started yet?",
         # "What do I have left in July?",
         # "What's my task for this week"
         # "What's my tasks between 7/15 to end of the month?",
-        # "Add go to work social for tomorrow."
-        "delete work social for tomorrow"
+        # "Add go to work social for this Sunday",
+        "I want to delete the task: essay"
     ]
 
     for question in questions:
@@ -40,6 +43,6 @@ if __name__ == "__main__":
     tavily_api_key = os.getenv("TAVILY_API_KEY")
     langchain_api_key = os.getenv("LANGCHAIN_API_KEY")
     os.environ["LANGCHAIN_TRACING_V2"] = "true"
-    os.environ["LANGCHAIN_PROJECT"] = "Real Estate Assistant Project"
+    os.environ["LANGCHAIN_PROJECT"] = "Taskbot"
     # Set other environment variables as needed
     main()

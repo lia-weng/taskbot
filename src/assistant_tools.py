@@ -63,7 +63,7 @@ def add_tasks(
     due_date: datetime,
     status: Optional[str] = None,
 ) -> None:
-    "Add a task. If user didn't mention a specific time, default to 12:00 am of that day."
+    "Add a task. If user didn't mention a specific time, default to T00:00:00 of that day."
 
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
@@ -109,15 +109,16 @@ def delete_tasks(
 ) -> str:
     """Delete a task given the task_id"""
 
-    # conn = sqlite3.connect(db_path)
-    # cursor = conn.cursor()
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
 
+    query = "DELETE FROM tasks WHERE task_id = ?"
+    params = [task_id]
     
-    # cursor.execute(query, params)
-    # conn.commit()
-    # cursor.close()
-    # conn.close()
-    "delete"
+    cursor.execute(query, params)
+    conn.commit()
+    cursor.close()
+    conn.close()
 
     return "Task deleted successuflly."
 
@@ -125,16 +126,22 @@ def delete_tasks(
 def get_all_tasks() -> str:
     """Retrive all tasks from the database"""
 
-    # conn = sqlite3.connect(db_path)
-    # cursor = conn.cursor()
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
 
     
-    # cursor.execute(query, params)
-    # conn.commit()
-    # cursor.close()
-    # conn.close()
+    query = "SELECT * FROM tasks WHERE 1 = 1"
+    params = []
 
-    return "got all tasks."
+    cursor.execute(query, params)
+    rows = cursor.fetchall()
+    column_names = [column[0] for column in cursor.description]
+    results = [dict(zip(column_names, row)) for row in rows]
 
-main_tools = [search_tasks, add_tasks]
-delete_tasks_tools = [delete_tasks, get_all_tasks]
+    cursor.close()
+    conn.close()
+
+    return results
+
+main_tools = [search_tasks, add_tasks, delete_tasks]
+delete_tasks_tools = [get_all_tasks, delete_tasks]

@@ -38,6 +38,7 @@ main_assistant_prompt = ChatPromptTemplate.from_messages(
             "Your primary role is manage the user's tasks."
             f"The time right now is {datetime.now()}."
             "Use this information to process the user's queries."
+            "Only call the most appropriate tool one at a time."
         ),
         ("placeholder", "{messages}"),
     ]
@@ -48,23 +49,25 @@ main_assistant_runnable = main_assistant_prompt | llm.bind_tools(
     [ToDeleteTasks]
 )
 
+class BackToMainAssistant(BaseModel):
+    """A tool for routing back to the main assistant."""
+
 
 delete_tasks_assistant_prompt = ChatPromptTemplate.from_messages(
     [
         (
             "system",
             "You are a specialized assistant for deleting tasks."
-            "If you can identify which task or tasks the user wants to delete,"
-            "Then delete them directly."
-            "If you cannot identify which task or tasks to delete, then:"
-            "First, you should retrieve all the tasks from the database."
-            "Then, based on the user's query, decide which task or tasks the user wants to delete."
-            "Finally, you delete the task or tasks from the database"
+            "First, retrieve all the tasks from the database."
+            "Then, compare the user's query with all the tasks the user has, decide which task the user wants to delete."
+            "Finally, delete the task from the database."
+            "Once deletion is complete, go back to the main assistant."
+            "Only call one tool at a time."
         ),
         ("placeholder", "{messages}"),
     ]
 ).partial(time=datetime.now())
 
 delete_tasks_assisant_runnable = delete_tasks_assistant_prompt | llm.bind_tools(
-    delete_tasks_tools
+    delete_tasks_tools + [BackToMainAssistant]
 )
