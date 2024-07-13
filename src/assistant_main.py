@@ -4,7 +4,7 @@ from langchain_core.messages import ToolMessage
 from langgraph.prebuilt import ToolNode, tools_condition
 
 from src.util import State, builder, llm, Assistant
-from src.tools import main_tools, ToDeleteTasks, ToMainAssistant
+from src.tools import main_tools, ToReminderAssistant, ToMainAssistant, get_all_tasks
 
 
 main_assistant_prompt = ChatPromptTemplate.from_messages(
@@ -22,19 +22,22 @@ main_assistant_prompt = ChatPromptTemplate.from_messages(
 
 main_assistant_runnable = main_assistant_prompt | llm.bind_tools(
     main_tools +
-    [ToDeleteTasks]
+    [ToReminderAssistant]
 )
 
-def route_tasks(state: State):
+# def get_tasks(state: State):
+#     return {"user_tasks": get_all_tasks.invoke({})}
+
+def route_main_assistant(state: State):
     route = tools_condition(state)
     if route == "__end__":
         return "__end__"
     
     tool_calls = state["messages"][-1].tool_calls
     if tool_calls:
-        if tool_calls[0]["name"] == ToDeleteTasks.__name__:
-            return "enter_delete_tasks"
-        return route
+        if tool_calls[0]["name"] == ToReminderAssistant.__name__:
+            return "enter_reminder_assistant"
+        return "main_tools"
 
 def to_main_assistant(state: State) -> dict:
     tool_calls = state["messages"][-1].tool_calls
@@ -51,12 +54,15 @@ def to_main_assistant(state: State) -> dict:
         ]
     }
 
-def create_assistant_main():
+def create_main_assistant():
+    # builder.add_node("get_tasks", get_tasks)
     builder.add_node("main_assistant", Assistant(main_assistant_runnable))
-    builder.add_node("tools", ToolNode(main_tools))
+    builder.add_node("main_tools", ToolNode(main_tools))
+    # builder.add_node("to_reminder_assistant", ToolNode([ToReminderAssistant]))
     builder.add_node("to_main_assistant", to_main_assistant)
 
     builder.set_entry_point("main_assistant")
-    builder.add_conditional_edges("main_assistant", route_tasks)
-    builder.add_edge("tools", "main_assistant")
+    # builder.add_edge("get_tasks", "main_assistant")
+    builder.add_conditional_edges("main_assistant", route_main_assistant)
+    builder.add_edge("main_tools", "main_assistant")
     builder.add_edge("to_main_assistant", "main_assistant")

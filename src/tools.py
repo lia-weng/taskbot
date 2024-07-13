@@ -4,7 +4,7 @@ import uuid
 
 from langchain_core.tools import tool
 from langchain_core.pydantic_v1 import BaseModel, Field
-from typing import Optional
+from typing import Optional, Literal
 
 from datetime import datetime, date
 import calendar
@@ -20,8 +20,8 @@ def search_tasks(
     task_name: Optional[str] = None,
     start_date_range: Optional[datetime] = None,
     end_date_range: Optional[datetime] = None,
-    status: Optional[str] = None,
-    limit: int = 10,
+    status: Optional[Literal['done', 'not started', 'in progress']] = None
+    # limit: int = 10,
 ) -> str:
     """Search for tasks based on given criteria."""
     conn = sqlite3.connect(db_path)
@@ -46,8 +46,8 @@ def search_tasks(
         query += " AND status = ?"
         params.append(status)
 
-    query += " LIMIT ?"
-    params.append(limit)
+    # query += " LIMIT ?"
+    # params.append(limit)
 
     cursor.execute(query, params)
     rows = cursor.fetchall()
@@ -139,5 +139,16 @@ def get_all_tasks() -> str:
 
     return results
 
-main_tools = [search_tasks, add_tasks]
-delete_tasks_tools = [get_all_tasks, delete_tasks]
+class ToReminderAssistant(BaseModel):
+    """Transfers work to a specialized assistant to send reminders."""
+
+    request: str = Field(
+        description="Any information provided by the user."
+    )
+
+
+main_tools = [search_tasks, add_tasks, delete_tasks]
+reminder_tools = [search_tasks, ToMainAssistant]
+# main_tools = [add_tasks, delete_tasks]
+# reminder_tools = [hi, ToMainAssistant]
+# delete_tasks_tools = [get_all_tasks, delete_tasks]

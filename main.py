@@ -2,19 +2,20 @@ import uuid
 import os
 from dotenv import load_dotenv
 from langgraph.checkpoint.sqlite import SqliteSaver
-import subprocess
+# import subprocess
 
+from data.csv_to_sql import populate_data
 from src.util import builder
-from src.assistant_main import create_assistant_main
-from src.assistant_delete import create_assistant_delete
-from data import csv_to_sql
+from src.assistant_main import create_main_assistant
+from src.assistant_reminder import create_reminder_assistant
+# from src.assistant_delete import create_assistant_delete
 
 
 def main():
-    subprocess.run(['python', 'data/csv_to_sql.py'])
-
-    create_assistant_main()
-    create_assistant_delete()
+    populate_data()
+    create_main_assistant()
+    create_reminder_assistant()
+    # create_assistant_delete()
 
     memory = SqliteSaver.from_conn_string(":memory:")
     graph = builder.compile(checkpointer=memory)
@@ -31,9 +32,11 @@ def main():
         # "add meet with friends for July 15 at 8pm",
         # "Which tasks have I not started yet?",
         # "What do I have left in September?",
-        "What's my task for this week",
+        # "What's my task for this week",
         # "What's my tasks between 7/15 to end of the month?",
-        # "I want to delete the task: finish essay"
+        "send me a reminder of tasks",
+        "I want to delete the task: call the bank",
+
     ]
 
     for question in questions:
