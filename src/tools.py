@@ -142,9 +142,9 @@ def get_all_tasks() -> str:
 class ToReminderAssistant(BaseModel):
     """Transfers work to a specialized assistant to send reminders."""
 
-    request: str = Field(
-        description="Any information provided by the user."
-    )
+    # request: str = Field(
+    #     description="Any information provided by the user."
+    # )
 
 
 main_tools = [search_tasks, add_tasks, delete_tasks]
