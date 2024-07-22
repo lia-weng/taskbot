@@ -1,7 +1,6 @@
 import uuid
 import os
 import sys
-# from dotenv import load_dotenv
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import PlainTextResponse
 from langgraph.checkpoint.sqlite import SqliteSaver
@@ -16,7 +15,6 @@ if project_root not in sys.path:
 
 from src.graph import create_graph
 
-# load_dotenv(override=True)
 
 app = FastAPI()
 
