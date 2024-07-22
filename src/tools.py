@@ -149,6 +149,3 @@ class ToReminderAssistant(BaseModel):
 
 main_tools = [search_tasks, add_tasks, delete_tasks]
 reminder_tools = [search_tasks, ToMainAssistant]
-# main_tools = [add_tasks, delete_tasks]
-# reminder_tools = [hi, ToMainAssistant]
-# delete_tasks_tools = [get_all_tasks, delete_tasks]

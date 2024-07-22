@@ -3,8 +3,8 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import ToolMessage
 from langgraph.prebuilt import ToolNode, tools_condition
 
-from src.util import State, builder, llm, Assistant
-from src.tools import main_tools, ToReminderAssistant, ToMainAssistant, get_all_tasks
+from src.util import State, llm, Assistant, builder
+from src.tools import main_tools, ToReminderAssistant, ToMainAssistant
 
 
 main_assistant_prompt = ChatPromptTemplate.from_messages(
@@ -24,9 +24,6 @@ main_assistant_runnable = main_assistant_prompt | llm.bind_tools(
     main_tools +
     [ToReminderAssistant]
 )
-
-# def get_tasks(state: State):
-#     return {"user_tasks": get_all_tasks.invoke({})}
 
 def route_main_assistant(state: State):
     route = tools_condition(state)
@@ -55,14 +52,11 @@ def to_main_assistant(state: State) -> dict:
     }
 
 def create_main_assistant():
-    # builder.add_node("get_tasks", get_tasks)
     builder.add_node("main_assistant", Assistant(main_assistant_runnable))
     builder.add_node("main_tools", ToolNode(main_tools))
-    # builder.add_node("to_reminder_assistant", ToolNode([ToReminderAssistant]))
     builder.add_node("to_main_assistant", to_main_assistant)
 
     builder.set_entry_point("main_assistant")
-    # builder.add_edge("get_tasks", "main_assistant")
     builder.add_conditional_edges("main_assistant", route_main_assistant)
     builder.add_edge("main_tools", "main_assistant")
     builder.add_edge("to_main_assistant", "main_assistant")

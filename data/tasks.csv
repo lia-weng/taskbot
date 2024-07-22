@@ -1,8 +1,8 @@
 task_id,task_name,due_date,status
-1,apply to jobs,2024-07-10,done
-2,clean room,2024-07-15,not started
-3,hang out with friend,2024-07-30,not started
+1,apply to jobs,2024-07-22,done
+2,clean room,2024-07-23,not started
+3,hang out with friend,2024-07-25,not started
 4,finish essay,2024-08-01,in progress
 5,buy concert ticket,2024-08-03,not started
-6,build chatbot,2024-09-30,in progress
-7,call the bank,2024-07-18,not started
+6,build chatbot,2024-08-11,in progress
+7,call the bank,2024-08-16,not started
