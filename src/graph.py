@@ -8,7 +8,6 @@ from src.util import builder
 
 
 def create_graph():
-    populate_data()
     create_main_assistant()
     create_reminder_assistant()
 

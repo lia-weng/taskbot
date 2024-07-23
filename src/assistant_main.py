@@ -21,8 +21,7 @@ main_assistant_prompt = ChatPromptTemplate.from_messages(
 ).partial(time=datetime.now())
 
 main_assistant_runnable = main_assistant_prompt | llm.bind_tools(
-    main_tools +
-    [ToReminderAssistant]
+    main_tools
 )
 
 def route_main_assistant(state: State):

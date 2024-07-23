@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from typing import Annotated, Callable, Literal
+from typing import Annotated, Callable, Optional
 from typing_extensions import TypedDict
 from langgraph.graph.message import AnyMessage, add_messages
 from langchain_openai import ChatOpenAI
@@ -53,3 +53,10 @@ def create_entry_node(assistant_name: str) -> Callable:
         }
     
     return entry_node
+
+# def to_rfc3339(dt) -> Optional[str]:
+#     """Convert a datetime object to an RFC 3339 timestamp string."""
+
+#     if dt.tzinfo is None:
+#         dt = dt.replace(tzinfo=timezone.utc)
+#     return dt.isoformat()

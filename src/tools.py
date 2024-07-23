@@ -1,61 +1,70 @@
 import sqlite3
 import os
 import uuid
-
+from dotenv import load_dotenv
 from langchain_core.tools import tool
 from langchain_core.pydantic_v1 import BaseModel, Field
 from typing import Optional, Literal
+from datetime import datetime
+import dateutil.parser
+from googleapiclient.discovery import build
 
-from datetime import datetime, date
-import calendar
-import dateparser
+from app.services.google_auth import authenticate
 
-db_path = os.path.join(os.path.dirname(__file__), "..", "data", "tasks.db")      
+db_path = os.path.join(os.path.dirname(__file__), "..", "data", "tasks.db")
+
+google_creds = authenticate()
+
+load_dotenv()
+TASKLIST_ID = os.getenv("TASKLIST_ID")
+
 
 class ToMainAssistant(BaseModel):
     """A tool for routing back to the main assistant."""
 
 @tool
 def search_tasks(
-    task_name: Optional[str] = None,
-    start_date_range: Optional[datetime] = None,
-    end_date_range: Optional[datetime] = None,
-    status: Optional[Literal['done', 'not started', 'in progress']] = None
-    # limit: int = 10,
+    title: Optional[str] = None,
+    status: Optional[Literal["needsAction", "completed"]] = None,
+    start_date: Optional[datetime] = None,
+    end_date: Optional[datetime] = None,
+    max_results: Optional[int] = 20
 ) -> str:
-    """Search for tasks based on given criteria."""
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-
-    query = "SELECT * FROM tasks WHERE 1 = 1"
-    params = []
-
-    if task_name:
-        query += " AND task_name = ?"
-        params.append(task_name)
+    """Retrieve tasks based on search criteria."""
     
-    if start_date_range:
-        query += " AND due_date >= ?"
-        params.append(start_date_range)
+    service = build("tasks", "v1", credentials=google_creds)
 
-    if end_date_range:
-        query += " AND due_date <= ?"
-        params.append(end_date_range)
+    params = {
+        "showCompleted": True,
+        "showHidden": True
+    }
 
-    if status is not None:
-        query += " AND status = ?"
-        params.append(status)
+    if status:
+        params["showCompleted"] = (status == "completed")
 
-    # query += " LIMIT ?"
-    # params.append(limit)
+    if start_date:
+        params["dueMin"] = start_date.isoformat() + "Z"
+    if end_date:
+        params["dueMax"] = end_date.isoformat() + "Z"
 
-    cursor.execute(query, params)
-    rows = cursor.fetchall()
-    column_names = [column[0] for column in cursor.description]
-    results = [dict(zip(column_names, row)) for row in rows]
+    results = []
 
-    cursor.close()
-    conn.close()
+    while True:
+        if page_token:
+            params["pageToken"] = page_token
+
+            tasks = service.tasks().list(tasklist=TASKLIST_ID, **params).execute()
+
+            for task in tasks.get("items", []):
+                if title:
+                    if title.lower() in task.get("title", "").lower():
+                        results.append(task)
+                else:
+                    results.append(task)
+
+        page_token = tasks.get("nextPageToken")
+        if not page_token or len(results) >= max_results:
+            break
 
     return results
 
@@ -92,13 +101,6 @@ def add_tasks(
 
     return "Task added successuflly."
 
-class ToDeleteTasks(BaseModel):
-    """Transfers work to a specialized assistant to delete tasks."""
-
-    request: str = Field(
-        description="Any information provided by the user."
-    )
-
 @tool
 def delete_tasks(
     task_id: str
@@ -118,34 +120,14 @@ def delete_tasks(
 
     return "Task deleted successuflly."
 
-@tool
-def get_all_tasks() -> str:
-    """Retrive all tasks from the database"""
-
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-
-    
-    query = "SELECT * FROM tasks WHERE 1 = 1"
-    params = []
-
-    cursor.execute(query, params)
-    rows = cursor.fetchall()
-    column_names = [column[0] for column in cursor.description]
-    results = [dict(zip(column_names, row)) for row in rows]
-
-    cursor.close()
-    conn.close()
-
-    return results
 
 class ToReminderAssistant(BaseModel):
     """Transfers work to a specialized assistant to send reminders."""
 
-    # request: str = Field(
-    #     description="Any information provided by the user."
-    # )
+    request: str = Field(
+        description="Any information provided by the user."
+    )
 
 
-main_tools = [search_tasks, add_tasks, delete_tasks]
+main_tools = [search_tasks, add_tasks, delete_tasks, ToReminderAssistant]
 reminder_tools = [search_tasks, ToMainAssistant]

@@ -2,6 +2,8 @@
 venv/
 __pycache__/
 
+structure
+
 # google task api
 credentials.json
 token.json
