@@ -4,7 +4,7 @@ import schedule
 import time
 from dotenv import load_dotenv
 
-from src.graph import create_graph
+from agent.graph import create_graph
 
 
 def main(): 

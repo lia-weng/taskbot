@@ -8,13 +8,13 @@ from langgraph.checkpoint.sqlite import SqliteSaver
 from langchain_core.messages import HumanMessage
 from twilio.twiml.messaging_response import MessagingResponse
 
-current_dir = os.path.dirname(__file__)
-project_root = os.path.abspath(os.path.join(current_dir, '..'))
+# current_dir = os.path.dirname(__file__)
+# project_root = os.path.abspath(os.path.join(current_dir, '..'))
 
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+# if project_root not in sys.path:
+#     sys.path.insert(0, project_root)
 
-from src.graph import create_graph
+from agent.graph import create_graph
 
 load_dotenv()
 

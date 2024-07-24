@@ -3,8 +3,8 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import ToolMessage
 from langgraph.prebuilt import ToolNode, tools_condition
 
-from src.util import State, llm, Assistant, builder
-from src.tools import main_tools, ToReminderAssistant, ToMainAssistant
+from agent.util import State, llm, Assistant, builder
+from agent.tools import main_tools, ToReminderAssistant, ToMainAssistant
 
 
 main_assistant_prompt = ChatPromptTemplate.from_messages(

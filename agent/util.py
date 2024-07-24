@@ -8,7 +8,7 @@ from langchain_core.messages import ToolMessage
 from langgraph.prebuilt import tools_condition
 from langgraph.graph import StateGraph
 
-from src.tools import ToMainAssistant
+from agent.tools import ToMainAssistant
 
 load_dotenv()
 

@@ -3,8 +3,6 @@ from dotenv import load_dotenv
 
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from typing import Optional, Literal
-from datetime import datetime
 
 
 load_dotenv()
@@ -47,47 +45,3 @@ def get_tasks(creds):
        print(f"{task["id"]} {task["title"]} {task["due"]}")
     
     return tasks
-
-def search_tasks(
-      creds,
-      title: Optional[str] = None,
-      status: Optional[Literal["needsAction", "completed"]] = None,
-      start_date: Optional[datetime] = None,
-      end_date: Optional[datetime] = None,
-      max_results: int = 20
-) -> list:
-  service = build("tasks", "v1", credentials=creds)
-
-  params = {
-      "showCompleted": True,
-      "showHidden": True
-  }
-
-  if status:
-      params["showCompleted"] = (status == "completed")
-
-  if start_date:
-      params["dueMin"] = start_date.isoformat() + "Z"
-  if end_date:
-      params["dueMax"] = end_date.isoformat() + "Z"
-
-  results = []
-
-  while True:
-      if page_token:
-          params["pageToken"] = page_token
-
-          tasks = service.tasks().list(tasklist=TASKLIST_ID, **params).execute()
-
-          for task in tasks.get("items", []):
-              if title:
-                  if title.lower() in task.get("title", "").lower():
-                      results.append(task)
-              else:
-                  results.append(task)
-
-      page_token = tasks.get("nextPageToken")
-      if not page_token or len(results) >= max_results:
-          break
-
-  return results
