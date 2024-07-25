@@ -5,15 +5,15 @@ from dotenv import load_dotenv
 from langchain_core.tools import tool
 from langchain_core.pydantic_v1 import BaseModel, Field
 from typing import Optional, Literal
-from datetime import datetime
+from datetime import datetime, timedelta
 from googleapiclient.discovery import build
 
 from app.services.google_auth import authenticate
+from assistant.util import convert_datetime_format
 
 
 load_dotenv()
 TASKLIST_ID = os.getenv("TASKLIST_ID")
-
 
 class ToMainAssistant(BaseModel):
     """A tool for routing back to the main assistant."""
@@ -40,9 +40,12 @@ def search_tasks(
             params["showCompleted"] = (status == "completed")
 
         if start_date:
-            params["dueMin"] = start_date.isoformat() + "Z"
-        if end_date:
-            params["dueMax"] = end_date.isoformat() + "Z"
+            params["dueMin"] = convert_datetime_format(start_date)
+        if end_date: # dueMax date is not inclusive, so need to add 1 day
+            end_date_plus_one_day = end_date + timedelta(days=1)
+            params["dueMax"] = convert_datetime_format(end_date_plus_one_day)
+        
+        print(params["dueMin"], params["dueMax"])
 
         results = []
         page_token = None
@@ -64,46 +67,32 @@ def search_tasks(
             if not page_token or len(results) >= max_results:
                 break
 
-        for task in results:
-            print(f"{task["id"]} {task["title"]} {task["due"]}")
-
         return results
 
     except Exception as e:
         return f"Error: {str(e)}"
 
-# @tool
-#TODO def add_tasks(
-#     task_name: str,
-#     due_date: datetime,
-#     status: Optional[str] = None,
-# ) -> None:
-#     "Add a task. If user didn't mention a specific time, default to T00:00:00 of that day."
+def add_task(
+    title: str,
+    due: datetime,
+) -> None:
+    """Add a task."""
 
-#     conn = sqlite3.connect(db_path)
-#     cursor = conn.cursor()
+    try:
+        google_creds = authenticate()
+        service = build("tasks", "v1", credentials=google_creds)
 
-#     task_id = str(uuid.uuid4())
-#     if not status:
-#         status = "not started"
+        task = {
+            "title": title,
+            "due": due.isoformat() + "Z"
+        }
 
-#     query = """
-#     INSERT INTO tasks (task_id, task_name, due_date, status)
-#     VALUES (?, ?, ?, ?)
-#     """
-#     params = [
-#         task_id,
-#         task_name,
-#         due_date.strftime('%Y-%m-%d %H:%M:%S'),
-#         status
-#     ]
+        result = service.tasks().insert(tasklist=TASKLIST_ID, body=task).execute()
+
+        print(f"Added task: {result["id"]}, {result["title"]}, {result["due"]}")
     
-#     cursor.execute(query, params)
-#     conn.commit()
-#     cursor.close()
-#     conn.close()
-
-#     return "Task added successuflly."
+    except Exception as e:
+        return f"Error: {str(e)}"
 
 # @tool
 #TODO def delete_tasks(
@@ -133,6 +122,6 @@ class ToReminderAssistant(BaseModel):
     )
 
 
-main_tools = [search_tasks]
+main_tools = [search_tasks, add_task]
 # main_tools = [search_tasks, add_tasks, delete_tasks, ToReminderAssistant]
 reminder_tools = [search_tasks, ToMainAssistant]

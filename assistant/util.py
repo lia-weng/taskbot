@@ -5,10 +5,10 @@ from langgraph.graph.message import AnyMessage, add_messages
 from langchain_openai import ChatOpenAI
 from langchain_core.runnables import Runnable, RunnableConfig
 from langchain_core.messages import ToolMessage
-from langgraph.prebuilt import tools_condition
 from langgraph.graph import StateGraph
-
-from agent.tools import ToMainAssistant
+from datetime import datetime, timezone
+from dateutil.parser import parse
+from dateutil.tz import tzutc
 
 load_dotenv()
 
@@ -54,9 +54,8 @@ def create_entry_node(assistant_name: str) -> Callable:
     
     return entry_node
 
-# def to_rfc3339(dt) -> Optional[str]:
-#     """Convert a datetime object to an RFC 3339 timestamp string."""
-
-#     if dt.tzinfo is None:
-#         dt = dt.replace(tzinfo=timezone.utc)
-#     return dt.isoformat()
+def convert_datetime_format(date: datetime):
+    # Ensure the datetime is UTC
+    utc_dt = date.replace(tzinfo=timezone.utc)
+    # Format as expected by Google Tasks API
+    return utc_dt.strftime("%Y-%m-%dT%H:%M:%S.000Z")

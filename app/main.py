@@ -4,17 +4,10 @@ import sys
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import PlainTextResponse
-from langgraph.checkpoint.sqlite import SqliteSaver
 from langchain_core.messages import HumanMessage
 from twilio.twiml.messaging_response import MessagingResponse
 
-# current_dir = os.path.dirname(__file__)
-# project_root = os.path.abspath(os.path.join(current_dir, '..'))
-
-# if project_root not in sys.path:
-#     sys.path.insert(0, project_root)
-
-from agent.graph import create_graph
+from assistant.graph import create_graph
 
 load_dotenv()
 

@@ -4,8 +4,8 @@ from datetime import datetime
 from langchain_core.prompts import ChatPromptTemplate
 from langgraph.prebuilt import tools_condition, ToolNode
 
-from agent.util import llm, Assistant, create_entry_node, State, builder
-from agent.tools import reminder_tools, ToMainAssistant
+from assistant.util import llm, Assistant, create_entry_node, State, builder
+from assistant.tools import reminder_tools, ToMainAssistant
 
 
 reminder_assistant_prompt = ChatPromptTemplate.from_messages(

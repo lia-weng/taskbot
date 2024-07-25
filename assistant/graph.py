@@ -2,9 +2,9 @@ from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.graph import StateGraph
 
 from data.csv_to_sql import populate_data
-from agent.assistant_main import create_main_assistant
-from agent.assistant_reminder import create_reminder_assistant
-from agent.util import builder
+from assistant.assistant_main import create_main_assistant
+from assistant.assistant_reminder import create_reminder_assistant
+from assistant.util import builder
 
 
 def create_graph():

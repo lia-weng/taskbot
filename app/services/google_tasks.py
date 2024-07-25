@@ -3,10 +3,13 @@ from dotenv import load_dotenv
 
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from google_auth import authenticate
 
 
 load_dotenv()
 TASKLIST_ID = os.getenv("TASKLIST_ID")
+google_creds = authenticate()
+
 
 def get_tasklists(creds):
     service = build("tasks", "v1", credentials=creds)
@@ -45,3 +48,6 @@ def get_tasks(creds):
        print(f"{task["id"]} {task["title"]} {task["due"]}")
     
     return tasks
+
+# get_tasklists(google_creds)
+# get_tasks(google_creds)
