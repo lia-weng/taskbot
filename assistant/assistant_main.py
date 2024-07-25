@@ -14,7 +14,7 @@ main_assistant_prompt = ChatPromptTemplate.from_messages(
             "You are a helpful personal assistant."
             " Your primary role is manage the user's tasks."
             f" The time right now is {datetime.now()}."
-            " The date and time format should be: '%Y-%m-%d %H:%M:%S'."
+            "Don't a tool call failed, don't call the same tool more than two times"
         ),
         ("placeholder", "{messages}"),
     ]

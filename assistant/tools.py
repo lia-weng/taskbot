@@ -8,7 +8,7 @@ from typing import Optional, Literal
 from datetime import datetime, timedelta
 from googleapiclient.discovery import build
 
-from app.services.google_auth import authenticate
+from app.services.google_auth import get_service
 from assistant.util import convert_datetime_format
 
 
@@ -28,8 +28,7 @@ def search_tasks(
 ) -> str:
     """Retrieve tasks based on search criteria."""
     try:
-        google_creds = authenticate()
-        service = build("tasks", "v1", credentials=google_creds)
+        service = get_service()
 
         params = {
             "showCompleted": True,
@@ -44,8 +43,6 @@ def search_tasks(
         if end_date: # dueMax date is not inclusive, so need to add 1 day
             end_date_plus_one_day = end_date + timedelta(days=1)
             params["dueMax"] = convert_datetime_format(end_date_plus_one_day)
-        
-        print(params["dueMin"], params["dueMax"])
 
         results = []
         page_token = None
@@ -72,6 +69,7 @@ def search_tasks(
     except Exception as e:
         return f"Error: {str(e)}"
 
+@tool
 def add_task(
     title: str,
     due: datetime,
@@ -79,12 +77,11 @@ def add_task(
     """Add a task."""
 
     try:
-        google_creds = authenticate()
-        service = build("tasks", "v1", credentials=google_creds)
+        service = get_service()
 
         task = {
             "title": title,
-            "due": due.isoformat() + "Z"
+            "due": convert_datetime_format(due)
         }
 
         result = service.tasks().insert(tasklist=TASKLIST_ID, body=task).execute()
@@ -94,24 +91,17 @@ def add_task(
     except Exception as e:
         return f"Error: {str(e)}"
 
-# @tool
-#TODO def delete_tasks(
-#     task_id: str
-# ) -> str:
-#     """Delete a task given the task_id"""
-
-#     conn = sqlite3.connect(db_path)
-#     cursor = conn.cursor()
-
-#     query = "DELETE FROM tasks WHERE task_id = ?"
-#     params = [task_id]
+@tool
+def delete_task(
+    task_id: str
+) -> None:
+    """Delete tasks based on task ID."""
+    try:
+        service = get_service()
+        service.tasks().delete(tasklist=TASKLIST_ID, task=task_id).execute()
     
-#     cursor.execute(query, params)
-#     conn.commit()
-#     cursor.close()
-#     conn.close()
-
-#     return "Task deleted successuflly."
+    except Exception as e:
+        return f"Error: {str(e)}"
 
 
 class ToReminderAssistant(BaseModel):
@@ -122,6 +112,5 @@ class ToReminderAssistant(BaseModel):
     )
 
 
-main_tools = [search_tasks, add_task]
-# main_tools = [search_tasks, add_tasks, delete_tasks, ToReminderAssistant]
+main_tools = [search_tasks, add_task, delete_task]
 reminder_tools = [search_tasks, ToMainAssistant]
