@@ -18,7 +18,7 @@ def main():
 
     def send_reminder():
         events = graph.stream(
-            {"messages": ("user", "send reminder of upcoming tasks tomorrow")}, config, stream_mode="values"
+            {"messages": ("user", "Send reminder for today's task.")}, config, stream_mode="values"
         )
         for event in events:
             if "messages" in event:

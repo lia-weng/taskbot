@@ -12,9 +12,9 @@ main_assistant_prompt = ChatPromptTemplate.from_messages(
         (
             "system",
             "You are a helpful personal assistant."
-            " Your primary role is manage the user's tasks."
+            " Your primary role is manage the user's tasks and send reminder of upcoming tasks."
+            " You should speak as if you're user's friend."
             f" The time right now is {datetime.now()}."
-            "Don't a tool call failed, don't call the same tool more than two times"
         ),
         ("placeholder", "{messages}"),
     ]
@@ -35,27 +35,27 @@ def route_main_assistant(state: State):
             return "enter_reminder_assistant"
         return "main_tools"
 
-def to_main_assistant(state: State) -> dict:
-    tool_calls = state["messages"][-1].tool_calls
-    for tc in tool_calls:
-        if tc["name"] == ToMainAssistant.__name__:
-            to_main_tc_id = tc["id"]
+# def to_main_assistant(state: State) -> dict:
+#     tool_calls = state["messages"][-1].tool_calls
+#     for tc in tool_calls:
+#         if tc["name"] == ToMainAssistant.__name__:
+#             to_main_tc_id = tc["id"]
 
-    return {
-        "messages": [
-            ToolMessage(
-                content="Resume dialog with the main assistant. Please reflect on the past conversation and assist the user as needed.",
-                tool_call_id=to_main_tc_id
-            )
-        ]
-    }
+#     return {
+#         "messages": [
+#             ToolMessage(
+#                 content="Resume dialog with the main assistant. Please reflect on the past conversation and assist the user as needed.",
+#                 tool_call_id=to_main_tc_id
+#             )
+#         ]
+#     }
 
 def create_main_assistant():
     builder.add_node("main_assistant", Assistant(main_assistant_runnable))
     builder.add_node("main_tools", ToolNode(main_tools))
-    builder.add_node("to_main_assistant", to_main_assistant)
+    # builder.add_node("to_main_assistant", to_main_assistant)
 
     builder.set_entry_point("main_assistant")
     builder.add_conditional_edges("main_assistant", route_main_assistant)
     builder.add_edge("main_tools", "main_assistant")
-    builder.add_edge("to_main_assistant", "main_assistant")
+    # builder.add_edge("to_main_assistant", "main_assistant")

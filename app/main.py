@@ -6,11 +6,11 @@ from fastapi import FastAPI, Request, Response
 from fastapi.responses import PlainTextResponse
 from langchain_core.messages import HumanMessage
 from twilio.twiml.messaging_response import MessagingResponse
+from apscheduler.schedulers.background import BackgroundScheduler
 
 from assistant.graph import create_graph
 
 load_dotenv()
-
 app = FastAPI()
 
 graph = create_graph()
@@ -22,6 +22,25 @@ config = {
     }
 }
 
+def send_reminder():
+    global counter
+    result = graph.invoke(
+        {"messages": ("user", "Send reminder for today's task.")},
+        config
+    )
+    print(result["messages"][-1].content)
+
+
+scheduler = BackgroundScheduler()
+scheduler.add_job(send_reminder, 'interval', seconds=5) # for testing
+scheduler.start()
+
+@app.on_event("shutdown")
+def shutdown_event():
+    if scheduler:
+        scheduler.shutdown()
+
+# routes
 @app.get("/")
 async def main_route():
     return PlainTextResponse("taskbot")

@@ -15,8 +15,8 @@ from assistant.util import convert_datetime_format
 load_dotenv()
 TASKLIST_ID = os.getenv("TASKLIST_ID")
 
-class ToMainAssistant(BaseModel):
-    """A tool for routing back to the main assistant."""
+# class ToMainAssistant(BaseModel):
+#     """A tool for routing back to the main assistant."""
 
 @tool
 def search_tasks(
@@ -104,13 +104,4 @@ def delete_task(
         return f"Error: {str(e)}"
 
 
-class ToReminderAssistant(BaseModel):
-    """Transfers work to a specialized assistant to send reminders."""
-
-    request: str = Field(
-        description="Any information provided by the user."
-    )
-
-
 main_tools = [search_tasks, add_task, delete_task]
-reminder_tools = [search_tasks, ToMainAssistant]
