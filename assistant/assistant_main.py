@@ -4,16 +4,16 @@ from langchain_core.messages import ToolMessage
 from langgraph.prebuilt import ToolNode, tools_condition
 
 from assistant.util import State, llm, Assistant, builder
-from assistant.tools import main_tools, ToReminderAssistant, ToMainAssistant
+from assistant.tools import main_tools
 
 
 main_assistant_prompt = ChatPromptTemplate.from_messages(
     [
         (
             "system",
-            "You are a helpful personal assistant."
+            "You are a helpful personal assistant.You should speak as if you're user's friend."
             " Your primary role is manage the user's tasks and send reminder of upcoming tasks."
-            " You should speak as if you're user's friend."
+            " If user message is 'Automated: Send reminder for today's task.', but there are no tasks, say exactly 'no_tasks'."
             f" The time right now is {datetime.now()}."
         ),
         ("placeholder", "{messages}"),
@@ -31,8 +31,6 @@ def route_main_assistant(state: State):
     
     tool_calls = state["messages"][-1].tool_calls
     if tool_calls:
-        if tool_calls[0]["name"] == ToReminderAssistant.__name__:
-            return "enter_reminder_assistant"
         return "main_tools"
 
 # def to_main_assistant(state: State) -> dict:

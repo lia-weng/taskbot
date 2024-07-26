@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 
 from assistant.graph import create_graph
 
+user_message = "Automated: Send reminder for today's task."
+# user_message = "What task do I have for today?"
 
 def main(): 
     graph = create_graph()
@@ -18,7 +20,7 @@ def main():
 
     def send_reminder():
         events = graph.stream(
-            {"messages": ("user", "Send reminder for today's task.")}, config, stream_mode="values"
+            {"messages": ("user", user_message)}, config, stream_mode="values"
         )
         for event in events:
             if "messages" in event:
