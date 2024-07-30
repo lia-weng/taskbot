@@ -1,24 +1,13 @@
-import uuid
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import PlainTextResponse
-from langchain_core.messages import HumanMessage
 from twilio.twiml.messaging_response import MessagingResponse
 
-from assistant.schedule_reminder import scheduler
-from assistant.graph import create_graph
+from app.services.reminder import scheduler
+from app.services.llm import invoke_llm
 
 load_dotenv()
 app = FastAPI()
-
-graph = create_graph()
-thread_id = str(uuid.uuid4())
-
-config = {
-    "configurable": {
-        "thread_id": thread_id,
-    }
-}
 
 scheduler.start()
 
@@ -37,25 +26,10 @@ async def main_route():
 @app.post("/sms")
 async def handle_sms(request: Request):
     try:
-        # Get the message the user sent our Twilio number
         form_data = await request.form()
         user_message = form_data.get('Body', None).strip()
+        ai_message = invoke_llm(user_message)
 
-        result = graph.invoke(
-            {
-                "messages": [
-                    HumanMessage(content=user_message)
-                ]
-            },
-            config
-        )
-
-        ai_message = result["messages"][-1].content
-
-        if ai_message == "no_tasks":
-            return None
-
-        # Create Twilio response
         resp = MessagingResponse()
         resp.message(ai_message)
         
