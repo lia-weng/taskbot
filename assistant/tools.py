@@ -8,7 +8,8 @@ from typing import Optional, Literal
 from datetime import datetime, timedelta
 from googleapiclient.discovery import build
 
-from app.services.google_auth import get_service
+# from app.services.google_service import get_task_service
+from app.services.google_service import service_manager
 from assistant.util import convert_datetime_format
 
 
@@ -28,7 +29,9 @@ def search_tasks(
 ) -> str:
     """Retrieve tasks based on search criteria."""
     try:
-        service = get_service()
+        service = service_manager._service
+        if service is None:
+            raise RuntimeError("Service is not initialized")
 
         params = {
             "showCompleted": True,
@@ -40,8 +43,8 @@ def search_tasks(
 
         if start_date:
             params["dueMin"] = convert_datetime_format(start_date)
-        if end_date: # dueMax date is not inclusive, so need to add 1 day
-            end_date_plus_one_day = end_date + timedelta(days=1)
+        if end_date:
+            end_date_plus_one_day = end_date + timedelta(days=1) # dueMax date is not inclusive, so need to add 1 day
             params["dueMax"] = convert_datetime_format(end_date_plus_one_day)
 
         results = []
@@ -77,16 +80,16 @@ def add_task(
     """Add a task."""
 
     try:
-        service = get_service()
+        service = service_manager._service
+        if service is None:
+            raise RuntimeError("Service is not initialized")
 
         task = {
             "title": title,
             "due": convert_datetime_format(due)
         }
 
-        result = service.tasks().insert(tasklist=TASKLIST_ID, body=task).execute()
-
-        print(f"Added task: {result["id"]}, {result["title"]}, {result["due"]}")
+        service.tasks().insert(tasklist=TASKLIST_ID, body=task).execute()
     
     except Exception as e:
         return f"Error: {str(e)}"
@@ -97,7 +100,10 @@ def delete_task(
 ) -> None:
     """Delete tasks based on task ID."""
     try:
-        service = get_service()
+        service = service_manager._service
+        if service is None:
+            raise RuntimeError("Service is not initialized")
+
         service.tasks().delete(tasklist=TASKLIST_ID, task=task_id).execute()
     
     except Exception as e:

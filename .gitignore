@@ -7,3 +7,4 @@ structure
 # google task api
 credentials.json
 token.json
+client_secret.json
