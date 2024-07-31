@@ -7,10 +7,10 @@ credentials.json
 token.json
 client_secret.json
 
-# react
+# frontend
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 # dependencies
-/node_modules
+node_modules/
 /.pnp
 .pnp.js
 
@@ -18,7 +18,7 @@ client_secret.json
 /coverage
 
 # production
-/build
+build.zip
 
 # misc
 .DS_Store
