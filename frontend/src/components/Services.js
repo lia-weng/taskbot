@@ -65,7 +65,7 @@ const Services = () => {
             </section>
 
             <section>
-                <div className="m-auto max-w-6xl p-2 md:p-12 h-5/6">
+                <div className="m-auto max-w-6xl p-2 md:p-12 h-5/6 border-2">
                     <div className="flex flex-col-reverse lg:flex-row py-8 justify-between lg:text-left" data-aos="zoom-out">
                         <div className="lg:w-1/2 flex flex-col lg:mx-4 justify-center">
                             <div className='text-blue-900 mb-4'>

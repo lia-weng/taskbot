@@ -37,26 +37,30 @@ app.mount("/static", StaticFiles(directory=os.path.join(frontend_path, "static")
 
 # authentication
 @app.get("/")
-async def index(request: Request):
-    if "credentials" not in request.session:
-        return RedirectResponse(url="/authorize")
-
-    credentials_data = request.session["credentials"]
-    print("Stored Credentials:", credentials_data)  # Debugging output
-
-    creds = Credentials(**credentials_data)
-    try:
-        service_manager.initialize_service(creds)
-    except google.auth.exceptions.RefreshError as e:
-        print("Error refreshing token:", str(e))  # Debugging output
-        return RedirectResponse(url="/authorize")
-
-    # creds = Credentials(**request.session["credentials"])
-    # service_manager.initialize_service(creds)
-
-    # Serve the index.html from the build directory
+async def index():
     with open(os.path.join(frontend_path, "index.html")) as f:
         return HTMLResponse(content=f.read(), status_code=200)
+
+@app.get("/check-auth")
+async def check_auth(request: Request):
+    if "credentials" not in request.session:
+        return RedirectResponse(url="/authorize")
+    
+    stored_creds = request.session["credentials"]
+    creds = Credentials(**stored_creds)
+    print(creds.expired)
+    
+    if not creds or creds.expired:
+        return RedirectResponse(url="/authorize")
+
+    try:
+        service_manager.initialize_service(creds)
+        response = RedirectResponse(url="/")
+        response.set_cookie(key="authenticated", value="true", httponly=False)
+        return response
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)     
+
 
 @app.get("/authorize")
 async def authorize(request: Request):
@@ -99,8 +103,8 @@ async def oauth2callback(request: Request):
         "client_secret": creds.client_secret,
         "scopes": creds.scopes
     }
-
-    return RedirectResponse(url="/")
+    
+    return RedirectResponse(url="/check-auth")
 
 @app.get("/logout")
 async def logout(request: Request):
