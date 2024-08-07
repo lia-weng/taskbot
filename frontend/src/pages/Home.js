@@ -3,7 +3,7 @@ import Clients from "../components/Clients"
 import Cta from "../components/Cta"
 import Footer from "../components/Footer"
 import Hero from "../components/Hero"
-import Intro from "../components/Intro"
+import GetStarted from "../components/GetStarted"
 import Portfolio from "../components/Portfolio"
 import Services from "../components/Services"
 
@@ -11,7 +11,7 @@ const Home = () => {
   return (
     <>
       <Hero />
-      <Intro />
+      <GetStarted />
       {/* <Services />
       <Portfolio />
       <Clients />

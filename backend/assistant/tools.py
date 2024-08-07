@@ -14,7 +14,6 @@ from backend.assistant.util import convert_datetime_format
 
 
 load_dotenv()
-TASKLIST_ID = os.getenv("TASKLIST_ID")
 
 # class ToMainAssistant(BaseModel):
 #     """A tool for routing back to the main assistant."""

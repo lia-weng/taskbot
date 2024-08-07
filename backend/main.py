@@ -21,7 +21,11 @@ middleware_key = os.environ["MIDDLEWARE_KEY"]
 app.add_middleware(SessionMiddleware, secret_key=middleware_key)
 
 CLIENT_SECRETS_FILE = os.path.join(os.path.dirname(__file__), "client_secret.json")
-SCOPES = ["https://www.googleapis.com/auth/tasks"]
+SCOPES = [
+    "https://www.googleapis.com/auth/tasks",
+    "https://www.googleapis.com/auth/userinfo.profile",
+    "https://www.googleapis.com/auth/userinfo.email",
+    "openid"]
 
 # Serve the static files from the React app's build directory
 frontend_path = os.path.join(os.path.dirname(__file__), "../frontend/build")
@@ -48,15 +52,21 @@ async def check_auth(request: Request):
     
     stored_creds = request.session["credentials"]
     creds = Credentials(**stored_creds)
-    print(creds.expired)
+    print(creds)
     
     if not creds or creds.expired:
         return RedirectResponse(url="/authorize")
 
     try:
+        print("initializing")
         service_manager.initialize_service(creds)
+        oauth2_service = build('oauth2', 'v2', credentials=creds)
+        user_info = oauth2_service.userinfo().get().execute()
+        email = user_info.get("email")
+
         response = RedirectResponse(url="/")
         response.set_cookie(key="authenticated", value="true", httponly=False)
+        response.set_cookie(key="email", value=email, httponly=False)
         return response
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)     
@@ -109,7 +119,9 @@ async def oauth2callback(request: Request):
 @app.get("/logout")
 async def logout(request: Request):
     request.session.pop("credentials", None)
-    return RedirectResponse(url="/")
+    response = RedirectResponse(url="/")
+    response.set_cookie(key="authenticated", value="false", httponly=False)
+    return response
 
 #twilio
 @app.post("/sms")
