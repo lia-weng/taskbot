@@ -7,9 +7,9 @@ const Hero = () => {
   return (
     <>
       <div className="hero" id="hero">
-        <div>
+        {/* <div>
           <NavBar />
-        </div>
+        </div> */}
         <div
           id="hero"
           className="flex flex-col p-10 mt-20 lg:p-20 justify-between text-center bg-gray-100"

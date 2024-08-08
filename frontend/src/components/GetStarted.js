@@ -4,6 +4,7 @@ import Cookies from "js-cookie"
 import { Link } from "react-router-dom"
 
 import { GoogleLogin } from "./Button"
+import GetStartedStep from "./GetStartedStep"
 import ExternalLink from "./ExternalLink"
 import taskListImg from "../images/task-list.png"
 import addTaskImg from "../images/add-tasks.jpg"
@@ -24,6 +25,73 @@ const GetStarted = () => {
     console.log(loggedIn)
   }, [loggedIn])
 
+  const steps = [
+    {
+      content: loggedIn ? (
+        <p className="text-xl text-gray-600 font-semibold mb-5 lg:mb-0 lg:mr-5">
+          Connected to: {Cookies.get("email")}
+        </p>
+      ) : (
+        <GoogleLogin
+          onClick={() => (window.open = `${baseURL}/authorize`)}
+          label={"Connect your Google account"}
+        />
+      ),
+    },
+    {
+      content: (
+        <>
+          <p className="text-xl text-gray-600 font-semibold flex flex-row">
+            Go to &nbsp;
+            <ExternalLink to="https://tasks.google.com/">
+              Google Tasks
+            </ExternalLink>
+            &nbsp;&nbsp;You will see a task list called "taskbot".
+          </p>
+          <img
+            src={taskListImg}
+            alt="Task list called 'taskbot'"
+            className="mt-5 w-full max-w-4xl drop-shadow-md"
+          />
+        </>
+      ),
+    },
+    {
+      content: (
+        <>
+          <p className="text-xl text-gray-600 font-semibold">
+            Add some tasks to "taskbot".
+          </p>
+          <img
+            src={addTaskImg}
+            alt="Add some tasks to 'taskbot'"
+            className="mt-5 w-full lg:w-fit max-w-4xl drop-shadow-md"
+          />
+        </>
+      ),
+    },
+    {
+      content: (
+        <>
+          <p className="text-xl text-gray-600 font-semibold">
+            Enter your phone number. This will be the number taskbot uses to
+            send you reminders.
+          </p>
+        </>
+      ),
+    },
+    {
+      content: (
+        <>
+          <p className="text-xl text-gray-600 font-semibold">
+            You're all set! Taskbot will send you reminders and let you manage
+            your tasks through text messages.
+          </p>
+        </>
+      ),
+    },
+  ]
+
   return (
     <>
       <div
@@ -36,69 +104,11 @@ const GetStarted = () => {
           Get Started
         </h2>
 
-        <div className="flex flex-col items-center lg:text-left mt-10 w-full lg:max-w-4xl">
-          <h3 className="text-3xl text-sky-800 font-bold mt-5 mb-8">Step 1:</h3>
-          <div>
-            {!loggedIn && (
-              <GoogleLogin
-                onClick={() => (window.location.href = `${baseURL}/authorize`)}
-                label={"Connect your Google account"}
-              />
-            )}
-            {loggedIn && (
-              <>
-                <p className="text-xl text-gray-600 font-semibold mb-5 lg:mb-0 lg:mr-5">
-                  Connected to: {Cookies.get("email")}
-                </p>
-                {/* <GoogleLogin
-                  onClick={() => (window.location.href = `${baseURL}/logout`)}
-                  label={"Disconnect from Google"}
-                /> */}
-              </>
-            )}
-          </div>
-        </div>
-
-        <div className="flex flex-col items-center lg:text-left mt-10 w-full max-w-4xl">
-          <h3 className="text-3xl text-sky-800 font-bold mt-5 mb-8">Step 2:</h3>
-          <p className="text-xl text-gray-600 font-semibold flex flex-row">
-            Go to &nbsp;
-            <ExternalLink to="https://tasks.google.com/">
-              Google Tasks
-            </ExternalLink>
-            &nbsp;&nbsp;You will see a task list called "taskbot".
-          </p>
-        </div>
-        <img
-          src={taskListImg}
-          alt="Task list called 'taskbot'"
-          className="mt-5 w-full max-w-4xl drop-shadow-md"
-        />
-
-        <div className="flex flex-col items-center lg:text-left mt-10 w-full max-w-4xl">
-          <h3 className="text-3xl text-sky-800 font-bold mt-5 mb-8">Step 3:</h3>
-          <p className="text-xl text-gray-600 font-semibold">
-            Add some tasks to "taskbot".
-          </p>
-          <img
-            src={addTaskImg}
-            alt="Add some tasks to 'taskbot'"
-            className="mt-5 w-full lg:w-fit max-w-4xl drop-shadow-md"
-          />
-        </div>
-
-        <div className="flex flex-col items-center lg:text-left mt-10 w-full max-w-4xl">
-          <h3 className="text-3xl text-sky-800 font-bold mt-5 mb-8">Step 4:</h3>
-          <p className="text-xl text-gray-600 font-semibold">
-            You're all set! Taskbot will send you reminders and let you manage
-            your tasks through text messages.
-          </p>
-        </div>
-        {/* <img
-          src={addTaskImg}
-          alt="Add some tasks to 'taskbot'"
-          className="mt-5 w-full lg:w-2/5 max-w-4xl drop-shadow-md"
-        /> */}
+        {steps.map((step, index) => (
+          <GetStartedStep key={index} stepNumber={index + 1}>
+            {step.content}
+          </GetStartedStep>
+        ))}
       </div>
     </>
   )
