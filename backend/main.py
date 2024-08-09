@@ -11,9 +11,9 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import Flow
 
-from backend.services.reminder import scheduler
+from backend.services.outbound_sms import scheduler, send_welcome
 from backend.services.llm import invoke_llm
-from backend.services.google_service import service_manager
+from backend.services.service_manager import service_manager
 
 load_dotenv()
 app = FastAPI()
@@ -32,12 +32,12 @@ frontend_path = os.path.join(os.path.dirname(__file__), "../frontend/build")
 app.mount("/static", StaticFiles(directory=os.path.join(frontend_path, "static")), name="static")
 
 # reminder scheduler
-# scheduler.start()
+scheduler.start()
 
-# @app.on_event("shutdown")
-# def shutdown_event():
-#     if scheduler:
-#         scheduler.shutdown()
+@app.on_event("shutdown")
+def shutdown_event():
+    if scheduler:
+        scheduler.shutdown()
 
 # authentication
 @app.get("/")
@@ -138,6 +138,20 @@ async def handle_sms(request: Request):
 
     except Exception as e:
         print(f"Error processing message: {str(e)}")
+        return Response(content="An error occurred", status_code=500)
+
+
+#from frontend
+@app.post("/api/submit-phone")
+async def handle_phone(request: Request):
+    try:
+        data = await request.json()
+        number = data.get("phoneNumber")
+        service_manager.set_phone_number(number)
+        send_welcome()
+        return None
+    except Exception as e:
+        print(f"Error submitting phone number: {str(e)}")
         return Response(content="An error occurred", status_code=500)
 
 

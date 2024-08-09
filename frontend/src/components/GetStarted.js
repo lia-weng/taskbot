@@ -1,5 +1,6 @@
 import React from "react"
 import { useEffect, useState } from "react"
+import axios from "axios"
 import Cookies from "js-cookie"
 import "react-phone-number-input/style.css"
 import PhoneInput, {
@@ -17,7 +18,7 @@ import Button from "@mui/material/Button"
 import { GoogleLogin } from "./Button"
 import GetStartedStep from "./GetStartedStep"
 import taskListImg from "../images/task-list.png"
-import addTaskImg from "../images/add-tasks.jpg"
+import addTaskImg from "../images/add-tasks.png"
 
 const baseURL = "https://oyster-ace-sturgeon.ngrok-free.app"
 
@@ -41,23 +42,21 @@ const GetStarted = () => {
     e.preventDefault()
 
     console.log("number", phoneNumber)
-    if (!phoneNumber) {
-      setPhoneNumberError("Please enter a valid phone number.")
-    } else if (isPossiblePhoneNumber(phoneNumber) === false) {
+    if (!phoneNumber || !isPossiblePhoneNumber(phoneNumber)) {
       setPhoneNumberError("Please enter a valid phone number.")
     } else {
       setPhoneNumberError()
       setPhoneNumberComplete(true)
-    }
 
-    // try {
-    //   // Replace with your backend endpoint
-    //   await axios.post("/api/submit-phone", { phoneNumber })
-    //   // Handle successful submission here, e.g., show a success message
-    // } catch (error) {
-    //   // Handle errors here
-    //   console.error("Error submitting phone number:", error)
-    // }
+      try {
+        await axios.post("/api/submit-phone", { phoneNumber })
+      } catch (error) {
+        console.error("Error submitting phone number:", error)
+        setPhoneNumberError(
+          "Sorry, something went wrong. Please try another number."
+        )
+      }
+    }
   }
 
   const steps = [
@@ -65,10 +64,16 @@ const GetStarted = () => {
       content: loggedIn ? (
         <p className="big-text">Connected to: {Cookies.get("email")}</p>
       ) : (
-        <GoogleLogin
-          onClick={() => (window.open = `${baseURL}/authorize`)}
-          label={"Connect your Google account"}
-        />
+        <>
+          <p className="big-text mb-8">
+            Taskbot uses Google Tasks.<br></br>Click below to connect your
+            Google account.
+          </p>
+          <GoogleLogin
+            onClick={() => (window.open = `${baseURL}/authorize`)}
+            label={"Connect to Google"}
+          />
+        </>
       ),
     },
     {
@@ -76,11 +81,6 @@ const GetStarted = () => {
         <>
           <p className="big-text">
             Go to &nbsp;
-            {/* <span>
-              <ExternalLink to="https://tasks.google.com/">
-                Google Tasks
-              </ExternalLink>
-            </span> */}
             <a
               href={"https://tasks.google.com/"}
               target="_blank"
@@ -89,12 +89,12 @@ const GetStarted = () => {
             >
               Google Tasks
             </a>
-            . You will see a task list called "taskbot".
+            . You will see a new task list called "taskbot".
           </p>
           <img
             src={taskListImg}
             alt="Task list called 'taskbot'"
-            className="mt-5 w-full drop-shadow-md"
+            className="mt-5"
           />
         </>
       ),
@@ -106,7 +106,7 @@ const GetStarted = () => {
           <img
             src={addTaskImg}
             alt="Add some tasks to 'taskbot'"
-            className="mt-5 w-full max-w-4xl drop-shadow-md"
+            className="mt-5"
           />
         </>
       ),
@@ -116,7 +116,7 @@ const GetStarted = () => {
         <>
           {phoneNumberComplete ? (
             <>
-              <p className="big-text">Awesome! Taskbot will text you at:</p>
+              <p className="big-text">Awesome! Taskbot just texted you at:</p>
               <div className="flex-col items-center mt-8">
                 <PhoneInput
                   international
@@ -126,18 +126,13 @@ const GetStarted = () => {
                   onChange={setPhoneNumber}
                   className="text-xl text-gray-600 font-semibold mb-8"
                 />
-                <IconButton
-                  aria-label="Edit number"
-                  color="secondary"
-                  onClick={() => setPhoneNumberComplete(false)}
-                  sx={{ display: "none" }}
-                >
-                  <EditIcon />
-                </IconButton>
                 <Button
                   variant="contained"
                   color="secondary"
-                  onClick={() => setPhoneNumberComplete(false)}
+                  onClick={() => {
+                    setPhoneNumberComplete(false)
+                    setPhoneNumberError()
+                  }}
                 >
                   Change
                 </Button>
@@ -145,7 +140,10 @@ const GetStarted = () => {
             </>
           ) : (
             <>
-              <p className="big-text">Enter your phone number.</p>
+              <p className="big-text">
+                Taskbot will send you reminders through text. 💬<br></br>Enter
+                your phone number below.
+              </p>
               <form
                 onSubmit={handleSubmit}
                 className="flex flex-col items-center mt-8"
@@ -162,14 +160,14 @@ const GetStarted = () => {
                   Confirm
                 </Button>
               </form>
-              {phoneNumberError ? (
-                <Alert severity="error" className="mt-8">
-                  {phoneNumberError}
-                </Alert>
-              ) : (
-                <></>
-              )}
             </>
+          )}
+          {phoneNumberError ? (
+            <Alert severity="error" className="mt-8">
+              {phoneNumberError}
+            </Alert>
+          ) : (
+            <></>
           )}
         </>
       ),
@@ -177,10 +175,8 @@ const GetStarted = () => {
     {
       content: (
         <>
-          <p className="big-text">You're all set!</p>
           <p className="big-text">
-            Taskbot will send you reminders and let you manage your tasks
-            through text.
+            You're all set!<br></br>Keep an eye out on for texts from Taskbot 👀
           </p>
         </>
       ),
@@ -209,11 +205,12 @@ const GetStarted = () => {
         </div>
 
         {/* Display the Carousel on large screens */}
-        <div className="hidden lg:flex flex-col items-center justify-center w-4/5 py-5 px-20">
+        <div className="hidden lg:flex flex-col items-center justify-center w-4/5">
           <Carousel
-            className="w-full"
+            className="w-full shadow-[0_0_50px_-15px_rgba(0,0,0,0.2)] rounded-[20px] py-10 px-16 mt-10"
             autoPlay={false}
             navButtonsAlwaysVisible={true}
+            height={500}
           >
             {steps.map((step, index) => (
               <GetStartedStep key={index} stepNumber={index + 1}>

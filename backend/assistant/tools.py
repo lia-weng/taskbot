@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from googleapiclient.discovery import build
 
 # from app.services.google_service import get_task_service
-from backend.services.google_service import service_manager
+from backend.services.service_manager import service_manager
 from backend.assistant.util import convert_datetime_format
 
 
