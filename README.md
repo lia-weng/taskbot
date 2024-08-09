@@ -1,1 +1,3 @@
-Taskbot is a personal assistant that keeps track of your to-do list and follows up with you through text messages. It’s like your friend, your mom, or your boss, that texts you from time to time, so that you can keep your shit together.
+**Taskbot is a personal assistant to help you get things done. It’s like your friend, your mom, or your boss, who texts you from time to time to keep you on track.**
+
+![Screenshot](screenshot/website.png)

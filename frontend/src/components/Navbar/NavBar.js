@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react"
-import NavLinks from "../Navbar/NavLinks"
 import { HashLink } from "react-router-hash-link"
+import CheckCircleIcon from "@mui/icons-material/CheckCircle"
+
+import NavLinks from "../Navbar/NavLinks"
 
 const NavBar = () => {
   const [top, setTop] = useState(!window.scrollY)
@@ -26,7 +28,7 @@ const NavBar = () => {
       <div className="flex flex-row justify-between items-center py-2 pl-4 h-12 lg:h-16">
         <div className="hidden lg:block flex flex-row justify-center md:px-12 md:mx-12 items-center text-center font-semibold">
           <HashLink smooth to="/#hero">
-            <h1 className="font-bold text-2xl text-sky-800">Taskbot</h1>
+            <CheckCircleIcon color="primary" fontSize="large" />
           </HashLink>
         </div>
         <div className="group flex flex-col items-center">
