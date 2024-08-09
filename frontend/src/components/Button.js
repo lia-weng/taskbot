@@ -51,7 +51,7 @@ export const GoogleLogin = ({ onClick, label }) => {
           </g>
         </g>
       </svg>
-      <span className="text-xl text-gray-600 font-semibold">{label}</span>
+      <span className="big-text">{label}</span>
     </button>
   )
 }

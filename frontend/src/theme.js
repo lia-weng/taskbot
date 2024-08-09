@@ -2,21 +2,19 @@ import { createTheme } from "@mui/material/styles"
 
 // Define Tailwind colors
 const tailwindColors = {
-  sky800: "#075985", // Tailwind sky-800 color
-  sky600: "#0284c7", // Tailwind sky-600 color
-  gray600: "#4b5563", // Tailwind gray-600 color
+  sky900: "#0c4a6e",
+  sky800: "#075985",
+  sky600: "#0284c7",
+  gray600: "#4b5563",
 }
 
 const theme = createTheme({
   palette: {
     primary: {
       main: tailwindColors.sky800,
-    },
-    secondary: {
-      main: tailwindColors.sky600,
-    },
-    text: {
-      primary: tailwindColors.gray600, // Example usage for text color
+      light: tailwindColors.sky600,
+      dark: tailwindColors.sky900,
+      contrastText: "#fff",
     },
     // Additional palette options can be added here
   },

@@ -117,25 +117,25 @@ const GetStarted = () => {
           {phoneNumberComplete ? (
             <>
               <p className="big-text">Awesome! Taskbot just texted you at:</p>
-              <div className="flex-col items-center mt-8">
+              <div className="flex items-center mt-8">
                 <PhoneInput
                   international
                   defaultCountry="CA"
                   placeholder="Enter phone number"
                   value={phoneNumber}
                   onChange={setPhoneNumber}
-                  className="text-xl text-gray-600 font-semibold mb-8"
+                  className="text-xl text-gray-600 font-semibold"
                 />
-                <Button
-                  variant="contained"
-                  color="secondary"
+                <IconButton
+                  color="primary"
+                  aria-label="Edit phone number"
                   onClick={() => {
                     setPhoneNumberComplete(false)
                     setPhoneNumberError()
                   }}
                 >
-                  Change
-                </Button>
+                  <EditIcon />
+                </IconButton>
               </div>
             </>
           ) : (
@@ -156,7 +156,7 @@ const GetStarted = () => {
                   onChange={setPhoneNumber}
                   className="text-xl text-gray-600 font-semibold mb-8"
                 />
-                <Button variant="contained" color="secondary" type="submit">
+                <Button variant="contained" color="primary" type="submit">
                   Confirm
                 </Button>
               </form>
@@ -186,17 +186,17 @@ const GetStarted = () => {
   return (
     <>
       <div
-        className="flex flex-col py-16 lg:py-20 px-14 items-center text-center"
+        className="flex flex-col py-16 lg:py-20 items-center text-center"
         id="get-started"
         data-aos="fade-up"
         data-aos-delay="500"
       >
-        <h2 className="mb-5 text-center text-3xl text-sky-800 font-bold underline underline-offset-8">
+        <h2 className="mb-5 text-center text-2xl md:text-3xl text-sky-800 font-extrabold underline underline-offset-8">
           Get Started
         </h2>
 
         {/* Display the steps on smaller screens */}
-        <div className="flex flex-col lg:hidden">
+        <div className="flex flex-col w-4/5 lg:hidden">
           {steps.map((step, index) => (
             <GetStartedStep key={index} stepNumber={index + 1}>
               {step.content}
